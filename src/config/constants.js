@@ -8,9 +8,6 @@ const {
 } = process.env;
 
 
-console.log(process.env);
-
-
 export const config = {
   apiKey: REACT_APP_API_KEY,
   authDomain: REACT_APP_AUTH_DOMAIN,
