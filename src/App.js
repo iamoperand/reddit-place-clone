@@ -1,11 +1,38 @@
 import React, { Component } from 'react';
 import { CirclePicker } from 'react-color';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
+import { config } from './config/constants';
+
+
+firebase.initializeApp(config);
+
+const db = firebase.firestore();
+
+// Disable deprecated features
+db.settings({
+  timestampsInSnapshots: true
+});
 
 
 class App extends Component {
   state = {
     pixels: [],
     currentPos: null,
+  }
+
+  componentDidMount = async () => {
+    const querySnapshot = await db.collection("pixels").get();
+
+    const initialPixels = [];
+    querySnapshot.forEach((doc) => {
+      initialPixels.push(doc.data());
+    });
+
+    this.setState({
+      pixels: initialPixels,
+    })
   }
 
   onClickHandler = (e) => {
@@ -21,13 +48,19 @@ class App extends Component {
   }
 
 
-  colorChangeHandler = (color, e) => {
+  colorChangeHandler = async (color, e) => {
     // stop bubbling
     e.stopPropagation();
 
     const { hex } = color;
 
     const { currentPos: { x, y } } = this.state;
+
+    await db.collection("pixels").add({
+      x,
+      y,
+      color: hex,
+    });
 
     this.setState(prevState => ({
       pixels: [
@@ -57,7 +90,7 @@ class App extends Component {
         onClick={this.onClickHandler}
       >
       {
-        pixels && pixels.map((pixel) => (
+        pixels && pixels.map((pixel, index) => (
           <span
             style={{
               position: 'absolute',
@@ -67,7 +100,7 @@ class App extends Component {
               height: '5px',
               backgroundColor: pixel.color,
             }}
-            key={(pixel.color + pixel.x + pixel.y).toString()}
+            key={(pixel.color + pixel.x + pixel.y + index).toString()}
           />
 
         ))
