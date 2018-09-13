@@ -1,127 +1,27 @@
 import React, { Component } from 'react';
-import { CirclePicker } from 'react-color';
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from 'react-router-dom';
 
-import { config } from './config/constants';
+import routes from './config/routes';
 
-
-firebase.initializeApp(config);
-
-const db = firebase.firestore();
-
-// Disable deprecated features
-db.settings({
-  timestampsInSnapshots: true,
-});
+import Home from './components/Home';
+import NotFound from './components/NotFound';
+import Playground from './components/Playground';
 
 
 class App extends Component {
-  state = {
-    pixels: [],
-    currentPos: null,
-  }
-
-  componentDidMount = async () => {
-    const querySnapshot = await db.collection('pixels').get();
-
-    const initialPixels = [];
-    querySnapshot.forEach((doc) => {
-      initialPixels.push(doc.data());
-    });
-
-    this.setState({
-      pixels: initialPixels,
-    });
-  }
-
-  onClickHandler = (e) => {
-    const x = e.clientX;
-    const y = e.clientY;
-
-    this.setState({
-      currentPos: {
-        x,
-        y,
-      },
-    });
-  }
-
-
-  colorChangeHandler = async (color, e) => {
-    // stop bubbling
-    e.stopPropagation();
-
-    const { hex } = color;
-
-    const { currentPos: { x, y } } = this.state;
-
-    await db.collection('pixels').add({
-      x,
-      y,
-      color: hex,
-    });
-
-    this.setState(prevState => ({
-      pixels: [
-        ...prevState.pixels,
-        {
-          x,
-          y,
-          color: hex,
-        },
-      ],
-      currentPos: null,
-    }));
-  }
-
   render() {
-    const {
-      pixels,
-      currentPos,
-    } = this.state;
     return (
-      <div
-        style={{
-          position: 'relative',
-          height: '100vh',
-          width: '100vw',
-        }}
-        onClick={this.onClickHandler}
-      >
-        {
-          pixels && pixels.map((pixel, index) => (
-            <span
-              style={{
-                position: 'absolute',
-                top: pixel.y,
-                left: pixel.x,
-                width: '5px',
-                height: '5px',
-                backgroundColor: pixel.color,
-              }}
-              key={(pixel.color + pixel.x + pixel.y + index).toString()}
-            />
-
-          ))
-        }
-        {
-          currentPos
-            && (
-            <div
-              style={{
-                position: 'absolute',
-                top: currentPos.y,
-                left: currentPos.x,
-              }}
-            >
-              <CirclePicker
-                onChange={this.colorChangeHandler}
-              />
-            </div>
-            )
-        }
-      </div>
+      <Router>
+        <Switch>
+          <Route exact path={routes.Home} component={Home} />
+          <Route exact path={routes.Playground} component={Playground} />
+          <Route component={NotFound} />
+        </Switch>
+      </Router>
     );
   }
 }
