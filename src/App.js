@@ -12,7 +12,7 @@ const db = firebase.firestore();
 
 // Disable deprecated features
 db.settings({
-  timestampsInSnapshots: true
+  timestampsInSnapshots: true,
 });
 
 
@@ -23,7 +23,7 @@ class App extends Component {
   }
 
   componentDidMount = async () => {
-    const querySnapshot = await db.collection("pixels").get();
+    const querySnapshot = await db.collection('pixels').get();
 
     const initialPixels = [];
     querySnapshot.forEach((doc) => {
@@ -32,7 +32,7 @@ class App extends Component {
 
     this.setState({
       pixels: initialPixels,
-    })
+    });
   }
 
   onClickHandler = (e) => {
@@ -43,7 +43,7 @@ class App extends Component {
       currentPos: {
         x,
         y,
-      }
+      },
     });
   }
 
@@ -56,7 +56,7 @@ class App extends Component {
 
     const { currentPos: { x, y } } = this.state;
 
-    await db.collection("pixels").add({
+    await db.collection('pixels').add({
       x,
       y,
       color: hex,
@@ -89,35 +89,37 @@ class App extends Component {
         }}
         onClick={this.onClickHandler}
       >
-      {
-        pixels && pixels.map((pixel, index) => (
-          <span
-            style={{
-              position: 'absolute',
-              top: pixel.y,
-              left: pixel.x,
-              width: '5px',
-              height: '5px',
-              backgroundColor: pixel.color,
-            }}
-            key={(pixel.color + pixel.x + pixel.y + index).toString()}
-          />
+        {
+          pixels && pixels.map((pixel, index) => (
+            <span
+              style={{
+                position: 'absolute',
+                top: pixel.y,
+                left: pixel.x,
+                width: '5px',
+                height: '5px',
+                backgroundColor: pixel.color,
+              }}
+              key={(pixel.color + pixel.x + pixel.y + index).toString()}
+            />
 
-        ))
-      }
+          ))
+        }
         {
           currentPos
-            &&  <div
-                  style={{
-                    position: 'absolute',
-                    top: currentPos.y,
-                    left: currentPos.x,
-                  }}
-                >
-                  <CirclePicker
-                    onChange={this.colorChangeHandler}
-                  />
-                </div>
+            && (
+            <div
+              style={{
+                position: 'absolute',
+                top: currentPos.y,
+                left: currentPos.x,
+              }}
+            >
+              <CirclePicker
+                onChange={this.colorChangeHandler}
+              />
+            </div>
+            )
         }
       </div>
     );
