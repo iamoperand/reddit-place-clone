@@ -1,19 +1,7 @@
 import React, { Component } from 'react';
 import { CirclePicker } from 'react-color';
-import firebase from 'firebase/app';
-import 'firebase/firestore';
 
-import { config } from '../../config/constants';
-
-
-firebase.initializeApp(config);
-
-const db = firebase.firestore();
-
-// Disable deprecated features
-db.settings({
-  timestampsInSnapshots: true,
-});
+import db from '../../config/firebase';
 
 
 class Playground extends Component {
